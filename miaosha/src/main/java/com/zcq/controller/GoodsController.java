@@ -33,7 +33,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/to_list")
-	public String list(Model model, com.imooc.miaosha.domain.MiaoshaUser user) {
+	public String list(Model model, MiaoshaUser user) {
 		model.addAttribute("user", user);
 		//查询商品列表
 		List<GoodsVo> goodsList = goodsService.listGoodsVo();
@@ -42,7 +42,7 @@ public class GoodsController {
 	}
 
 	@RequestMapping("/to_detail/{goodsId}")
-	public String detail(Model model, com.imooc.miaosha.domain.MiaoshaUser user,
+	public String detail(Model model, MiaoshaUser user,
 						 @PathVariable("goodsId")long goodsId) {
 		model.addAttribute("user", user);
 

@@ -1,8 +1,10 @@
 package com.zcq.vo;
 
+import com.zcq.domain.Goods;
+
 import java.util.Date;
 
-public class GoodsVo extends com.imooc.miaosha.domain.Goods {
+public class GoodsVo extends Goods {
 	private Double miaoshaPrice;
 	private Integer stockCount;
 	private Date startDate;
