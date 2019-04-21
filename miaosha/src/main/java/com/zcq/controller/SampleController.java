@@ -2,6 +2,7 @@ package com.zcq.controller;
 
 
 import com.zcq.domain.User;
+import com.zcq.rabbitmq.MQSender;
 import com.zcq.redis.RedisService;
 import com.zcq.redis.UserKey;
 import com.zcq.result.CodeMsg;
@@ -22,6 +23,10 @@ public class SampleController {
 
 	@Autowired
     RedisService redisService;
+
+
+    @Autowired
+    MQSender sender;
 
     @RequestMapping("/hello")
     @ResponseBody
@@ -72,5 +77,10 @@ public class SampleController {
         redisService.set(UserKey.getById, ""+1, user);//UserKey:id1
         return Result.success(true);
     }
-
+	@RequestMapping("/mq")
+    @ResponseBody
+    public Result<String> mq() {
+		sender.send("hello,imooc");
+        return Result.success("Hello，world");
+    }
 }
