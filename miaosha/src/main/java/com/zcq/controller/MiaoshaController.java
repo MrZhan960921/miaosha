@@ -38,8 +38,9 @@ public class MiaoshaController {
 
 
 	/**
-	 * QPS:1306
+	 * QPS:1267 load:15 mysql
 	 * 5000 * 10
+	 * QPS:2884, load:5
 	 * */
     @RequestMapping("/do_miaosha")
     public String list(Model model, MiaoshaUser user,
