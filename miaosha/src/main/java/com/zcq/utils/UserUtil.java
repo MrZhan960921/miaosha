@@ -2,7 +2,8 @@ package com.zcq.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.imooc.miaosha.domain.MiaoshaUser;
+import com.zcq.domain.MiaoshaUser;
+
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -17,7 +18,7 @@ public class UserUtil {
 		List<MiaoshaUser> users = new ArrayList<MiaoshaUser>(count);
 		//生成用户
 		for(int i=0;i<count;i++) {
-			com.imooc.miaosha.domain.MiaoshaUser user = new com.imooc.miaosha.domain.MiaoshaUser();
+		MiaoshaUser user = new MiaoshaUser();
 			user.setId(13000000000L+i);
 			user.setLoginCount(1);
 			user.setNickname("user"+i);
@@ -55,7 +56,7 @@ public class UserUtil {
 		file.createNewFile();
 		raf.seek(0);
 		for(int i=0;i<users.size();i++) {
-			com.imooc.miaosha.domain.MiaoshaUser user = users.get(i);
+			MiaoshaUser user = users.get(i);
 			URL url = new URL(urlString);
 			HttpURLConnection co = (HttpURLConnection)url.openConnection();
 			co.setRequestMethod("POST");
