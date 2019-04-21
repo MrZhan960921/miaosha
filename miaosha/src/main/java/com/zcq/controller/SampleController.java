@@ -2,6 +2,8 @@ package com.zcq.controller;
 
 
 import com.zcq.domain.User;
+import com.zcq.redis.RedisService;
+import com.zcq.redis.UserKey;
 import com.zcq.result.CodeMsg;
 import com.zcq.result.Result;
 import com.zcq.service.UserService;
@@ -17,7 +19,9 @@ public class SampleController {
 
 	@Autowired
     UserService userService;
-	
+
+	@Autowired
+    RedisService redisService;
 
     @RequestMapping("/hello")
     @ResponseBody
@@ -51,8 +55,22 @@ public class SampleController {
     	userService.tx();
         return Result.success(true);
     }
-    
 
-    
-    
+    @RequestMapping("/redis/get")
+    @ResponseBody
+    public Result<User> redisGet() {
+        User  user  = redisService.get(UserKey.getById, ""+1, User.class);
+        return Result.success(user);
+    }
+
+    @RequestMapping("/redis/set")
+    @ResponseBody
+    public Result<Boolean> redisSet() {
+        User user  = new User();
+        user.setId(1);
+        user.setName("1111");
+        redisService.set(UserKey.getById, ""+1, user);//UserKey:id1
+        return Result.success(true);
+    }
+
 }
