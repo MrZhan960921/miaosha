@@ -30,7 +30,8 @@
                 <td th:text="${goods.goodsPrice}"></td>  
                 <td th:text="${goods.miaoshaPrice}"></td>  
                 <td th:text="${goods.stockCount}"></td>
-                <td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td>  
+                <!--这里直接请求静态页面，不需要请求接口通过模板渲染-->
+                <td><a th:href="'/goods_detail.htm?goodsId='+${goods.id}">详情</a></td>  
      </tr>  
   </table>
 </div>

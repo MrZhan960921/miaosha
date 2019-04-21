@@ -4,8 +4,10 @@ package com.zcq.controller;
 import com.zcq.domain.MiaoshaUser;
 import com.zcq.redis.GoodsKey;
 import com.zcq.redis.RedisService;
+import com.zcq.result.Result;
 import com.zcq.service.GoodsService;
 import com.zcq.service.MiaoshaUserService;
+import com.zcq.vo.GoodsDetailVo;
 import com.zcq.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,18 +72,23 @@ public class GoodsController {
 		return html;
 	}
 
-	@RequestMapping("/to_detail/{goodsId}")
-	public String detail(Model model, MiaoshaUser user,
-						 @PathVariable("goodsId")long goodsId) {
-		model.addAttribute("user", user);
-
+	/**
+	 * 页面静态化，只提供接口，通过前端请求，如ajax等来请求该接口，然后渲染页面。页面跳转也不需要通过后台，直接在前端请求静态页面
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @param user
+	 * @param goodsId
+	 * @return
+	 */
+	@RequestMapping(value="/detail/{goodsId}")
+	@ResponseBody
+	public Result<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response, Model model, MiaoshaUser user,
+										@PathVariable("goodsId")long goodsId) {
 		GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-		model.addAttribute("goods", goods);
-
 		long startAt = goods.getStartDate().getTime();
 		long endAt = goods.getEndDate().getTime();
 		long now = System.currentTimeMillis();
-
 		int miaoshaStatus = 0;
 		int remainSeconds = 0;
 		if(now < startAt ) {//秒杀还没开始，倒计时
@@ -94,9 +101,12 @@ public class GoodsController {
 			miaoshaStatus = 1;
 			remainSeconds = 0;
 		}
-		model.addAttribute("miaoshaStatus", miaoshaStatus);
-		model.addAttribute("remainSeconds", remainSeconds);
-		return "goods_detail";
+		GoodsDetailVo vo = new GoodsDetailVo();
+		vo.setGoods(goods);
+		vo.setUser(user);
+		vo.setRemainSeconds(remainSeconds);
+		vo.setMiaoshaStatus(miaoshaStatus);
+		return Result.success(vo);
 	}
 
 
