@@ -48,7 +48,8 @@
         		<button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
         		<input type="hidden" name="goodsId"  id="goodsId" />
         	</form>-->
-        	<button class="btn btn-primary btn-block" type="button" id="buyButton"onclick="doMiaosha()">立即秒杀</button>
+            <!--先获取秒杀path,这样做的目的是隐藏秒杀借口路径-->
+        	<button class="btn btn-primary btn-block" type="button" id="buyButton"onclick="getMiaoshaPath()">立即秒杀</button>
         	<input type="hidden" name="goodsId"  id="goodsId" />
         </td>
      </tr>
@@ -68,64 +69,87 @@
 </div>
 </body>
 <script>
+    function getMiaoshaPath(){
+        var goodsId = $("#goodsId").val();
+        g_showLoading();
+        $.ajax({
+            url:"/miaosha/path",
+            type:"GET",
+            data:{
+                goodsId:goodsId,
+                verifyCode:$("#verifyCode").val()
+            },
+            success:function(data){
+                if(data.code == 0){
+                    var path = data.data;
+                    doMiaosha(path);
+                }else{
+                    layer.msg(data.msg);
+                }
+            },
+            error:function(){
+                layer.msg("客户端请求有误");
+            }
+        });
+    }
 
-function getMiaoshaResult(goodsId){
-	g_showLoading();
-	$.ajax({
-		url:"/miaosha/result",
-		type:"GET",
-		data:{
-			goodsId:$("#goodsId").val(),
-		},
-		success:function(data){
-			if(data.code == 0){
-				var result = data.data;
-				if(result < 0){
-					layer.msg("对不起，秒杀失败");
-				}else if(result == 0){//继续轮询
-					setTimeout(function(){
-						getMiaoshaResult(goodsId);
-					}, 50);
-				}else{
-					layer.confirm("恭喜你，秒杀成功！查看订单？", {btn:["确定","取消"]},
-							function(){
-								window.location.href="/order_detail.htm?orderId="+result;
-							},
-							function(){
-								layer.closeAll();
-							});
-				}
-			}else{
-				layer.msg(data.msg);
-			}
-		},
-		error:function(){
-			layer.msg("客户端请求有误");
-		}
-	});
-}
+    function getMiaoshaResult(goodsId){
+        g_showLoading();
+        $.ajax({
+            url:"/miaosha/result",
+            type:"GET",
+            data:{
+                goodsId:$("#goodsId").val(),
+            },
+            success:function(data){
+                if(data.code == 0){
+                    var result = data.data;
+                    if(result < 0){
+                        layer.msg("对不起，秒杀失败");
+                    }else if(result == 0){//继续轮询
+                        setTimeout(function(){
+                            getMiaoshaResult(goodsId);
+                        }, 200);
+                    }else{
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn:["确定","取消"]},
+                            function(){
+                                window.location.href="/order_detail.htm?orderId="+result;
+                            },
+                            function(){
+                                layer.closeAll();
+                            });
+                    }
+                }else{
+                    layer.msg(data.msg);
+                }
+            },
+            error:function(){
+                layer.msg("客户端请求有误");
+            }
+        });
+    }
 
-function doMiaosha(){
-	$.ajax({
-		url:"/miaosha/do_miaosha",
-		type:"POST",
-		data:{
-			goodsId:$("#goodsId").val(),
-		},
-		success:function(data){
-			if(data.code == 0){
-				//window.location.href="/order_detail.htm?orderId="+data.data.id;
-				getMiaoshaResult($("#goodsId").val());
-			}else{
-				layer.msg(data.msg);
-			}
-		},
-		error:function(){
-			layer.msg("客户端请求有误");
-		}
-	});
-	
-}
+    function doMiaosha(path){
+        $.ajax({
+            url:"/miaosha/"+path+"/do_miaosha",
+            type:"POST",
+            data:{
+                goodsId:$("#goodsId").val()
+            },
+            success:function(data){
+                if(data.code == 0){
+                    //window.location.href="/order_detail.htm?orderId="+data.data.id;
+                    getMiaoshaResult($("#goodsId").val());
+                }else{
+                    layer.msg(data.msg);
+                }
+            },
+            error:function(){
+                layer.msg("客户端请求有误");
+            }
+        });
+
+    }
 
 function render(detail){
 	var miaoshaStatus = detail.miaoshaStatus;
