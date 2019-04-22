@@ -24,6 +24,15 @@ public class MQConfig {
     public static final String HEADERS_EXCHANGE = "headersExchage";
 
     /**
+     * 秒杀队列
+     * @return
+     */
+    @Bean
+    public Queue miaoshaqueue() {
+        return new Queue(MIAOSHA_QUEUE, true);
+    }
+
+    /**
      * Direct模式 交换机Exchange 必须完全匹配绑定key，没有绑定则是default 默认交换机
      */
     @Bean

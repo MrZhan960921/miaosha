@@ -22,5 +22,8 @@ public interface GoodsDao {
 	//sql限制条件 解决超卖，添加唯一索引，防止一个用户秒杀到多个商品
 	@Update("update miaosha_goods set stock_count = stock_count - 1 where goods_id = #{goodsId} and stock_count > 0")
 	public int reduceStock(MiaoshaGoods g);
-	
+
+	@Update("update miaosha_goods set stock_count = #{stockCount} where goods_id = #{goodsId}")
+	public int resetStock(MiaoshaGoods g);
+
 }
