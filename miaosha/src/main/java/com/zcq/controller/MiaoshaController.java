@@ -150,11 +150,16 @@ public class MiaoshaController implements InitializingBean {
 	@RequestMapping(value="/path", method=RequestMethod.GET)
 	@ResponseBody
 	public Result<String> getMiaoshaPath(HttpServletRequest request, MiaoshaUser user,
-										 @RequestParam("goodsId")long goodsId) {
+										 @RequestParam("goodsId")long goodsId,
+										 @RequestParam(value="verifyCode", defaultValue="0")int verifyCode) {
 		if(user == null) {
 			return Result.error(CodeMsg.SESSION_ERROR);
 		}
-
+		//验证图形验证码
+		boolean check = miaoshaService.checkVerifyCode(user, goodsId, verifyCode);
+		if(!check) {
+			return Result.error(CodeMsg.REQUEST_ILLEGAL);
+		}
 		String path  =miaoshaService.createMiaoshaPath(user, goodsId);
 		return Result.success(path);
 	}
@@ -162,15 +167,9 @@ public class MiaoshaController implements InitializingBean {
 	@RequestMapping(value="/verifyCode", method=RequestMethod.GET)
 	@ResponseBody
 	public Result<String> getMiaoshaVerifyCod(HttpServletResponse response, MiaoshaUser user,
-											  @RequestParam("goodsId")long goodsId,
-											  @RequestParam(value="verifyCode", defaultValue="0")int verifyCode) {
+											  @RequestParam("goodsId")long goodsId) {
 		if(user == null) {
 			return Result.error(CodeMsg.SESSION_ERROR);
-		}
-		//先验证码校验
-		boolean check = miaoshaService.checkVerifyCode(user, goodsId, verifyCode);
-		if(!check) {
-			return Result.error(CodeMsg.REQUEST_ILLEGAL);
 		}
 		try {
 			BufferedImage image  = miaoshaService.createVerifyCode(user, goodsId);
