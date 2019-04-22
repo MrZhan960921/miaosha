@@ -1,5 +1,6 @@
 package com.zcq.config;
 
+import com.zcq.access.UserContext;
 import com.zcq.domain.MiaoshaUser;
 import com.zcq.service.MiaoshaUserService;
 import org.apache.commons.lang3.StringUtils;
@@ -27,37 +28,14 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     MiaoshaUserService userService;
 
     @Override
-    public boolean supportsParameter(MethodParameter methodParameter) {
-        //获取参数的类型，判断正确执行下面的方法
-        Class<?> clazz = methodParameter.getParameterType();
-        return clazz== MiaoshaUser.class;
+    public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> clazz = parameter.getParameterType();
+        return clazz==MiaoshaUser.class;
     }
 
-    //一整套逻辑判断
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-        String paramToken = request.getParameter(MiaoshaUserService.COOKI_NAME_TOKEN);
-        String cookieToken = getCookieValue(request, MiaoshaUserService.COOKI_NAME_TOKEN);
-        if(StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
-            return null;
-        }
-        String token = StringUtils.isEmpty(paramToken)?cookieToken:paramToken;
-        return userService.getByToken(response, token);
-    }
-    private String getCookieValue(HttpServletRequest request, String cookiName) {
-        Cookie[]  cookies = request.getCookies();
-        if(cookies == null || cookies.length <= 0){
-            return null;
-        }
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals(cookiName)) {
-                return cookie.getValue();
-            }
-        }
-        return null;
+        return UserContext.getUser();
     }
 }

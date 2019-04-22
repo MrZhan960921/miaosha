@@ -1,6 +1,7 @@
 package com.zcq.controller;
 
 
+import com.zcq.access.AccessLimit;
 import com.zcq.domain.MiaoshaOrder;
 import com.zcq.domain.MiaoshaUser;
 import com.zcq.domain.OrderInfo;
@@ -147,6 +148,7 @@ public class MiaoshaController implements InitializingBean {
 	 * @param goodsId
 	 * @return
 	 */
+	@AccessLimit(seconds=5, maxCount=5, needLogin=true)
 	@RequestMapping(value="/path", method=RequestMethod.GET)
 	@ResponseBody
 	public Result<String> getMiaoshaPath(HttpServletRequest request, MiaoshaUser user,
