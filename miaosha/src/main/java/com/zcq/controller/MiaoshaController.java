@@ -4,6 +4,7 @@ package com.zcq.controller;
 import com.zcq.domain.MiaoshaOrder;
 import com.zcq.domain.MiaoshaUser;
 import com.zcq.domain.OrderInfo;
+import com.zcq.redis.GoodsKey;
 import com.zcq.redis.RedisService;
 import com.zcq.result.CodeMsg;
 import com.zcq.result.Result;
@@ -12,6 +13,7 @@ import com.zcq.service.MiaoshaService;
 import com.zcq.service.MiaoshaUserService;
 import com.zcq.service.OrderService;
 import com.zcq.vo.GoodsVo;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
+import java.util.List;
+
 @Controller
 @RequestMapping("/miaosha")
-public class MiaoshaController {
+public class MiaoshaController implements InitializingBean {
 
 	@Autowired
 	MiaoshaUserService userService;
@@ -39,7 +44,7 @@ public class MiaoshaController {
 	@Autowired
 	MiaoshaService miaoshaService;
 
-
+	private HashMap<Long, Boolean> localOverMap =  new HashMap<Long, Boolean>();
 	/**
 	 * QPS:1306
 	 * 5000 * 10
@@ -69,5 +74,21 @@ public class MiaoshaController {
 		//减库存 下订单 写入秒杀订单
 		OrderInfo orderInfo = miaoshaService.miaosha(user, goods);
 		return Result.success(orderInfo);
+	}
+
+	/**
+	 * 系统初始化就执行，用于预热缓存
+	 * @throws Exception
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		List<GoodsVo> goodsList = goodsService.listGoodsVo();
+		if(goodsList == null) {
+			return;
+		}
+		for(GoodsVo goods : goodsList) {
+			redisService.set(GoodsKey.getMiaoshaGoodsStock, ""+goods.getId(), goods.getStockCount());
+			localOverMap.put(goods.getId(), false);
+		}
 	}
 }
